@@ -1,5 +1,7 @@
 package com.fastdye.almacen.domain.ports.in;
 
+import com.fastdye.almacen.domain.model.AuthResult;
+
 public interface AuthUseCase {
-    String login(String username, String password);
+    AuthResult login(String username, String password);
 }
