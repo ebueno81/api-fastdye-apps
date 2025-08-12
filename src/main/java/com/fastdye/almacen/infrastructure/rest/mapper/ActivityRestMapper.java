@@ -14,6 +14,8 @@ public class ActivityRestMapper {
                 .clientNombre(model.getClient().getNombreCliente())
                 .storeId(model.getStore().getId())
                 .storeNombre(model.getStore().getNombreAlmacen())
+                .idReason(model.getReason().getIdReason())
+                .reasonNombre(model.getReason().getNameReason())
                 .userId(model.getUsuarioCreacion())
                 .detalles(model.getDetails().stream()
                         .map(ActivityDetailRestMapper::toResponse)

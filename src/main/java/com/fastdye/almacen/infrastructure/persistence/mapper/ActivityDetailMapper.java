@@ -30,6 +30,9 @@ public class ActivityDetailMapper {
                 .peso(entity.getPeso())
                 .nroLote(entity.getLote())
                 .idArticulo(entity.getArticle() != null ? entity.getArticle().getId() : 0)
+                .nombreArticulo(
+                        entity.getArticle() != null ? entity.getArticle().getNombreArticulo() : null
+                )
                 .build();
     }
 }

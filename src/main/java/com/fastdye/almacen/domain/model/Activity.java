@@ -20,6 +20,7 @@ public class Activity {
     private int activo;
     private Client client;
     private Store store;
+    private Reason reason;
     private String usuarioCreacion;
     private String usuarioModifica;
     private LocalDateTime fechaCreacion;

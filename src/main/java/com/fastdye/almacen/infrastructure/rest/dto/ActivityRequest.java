@@ -2,6 +2,7 @@ package com.fastdye.almacen.infrastructure.rest.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -13,5 +14,6 @@ public class ActivityRequest {
     private String idAlmacen;
     private String usuarioCreacion;
     private String usuarioModifica;
+    private LocalDateTime fechaCreacion;
     private List<ActivityDetailRequest> detalles;
 }

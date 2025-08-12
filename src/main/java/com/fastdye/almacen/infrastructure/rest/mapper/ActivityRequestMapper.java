@@ -14,6 +14,7 @@ public class ActivityRequestMapper {
                 .store(Store.builder().id(dto.getIdAlmacen()).build())
                 .usuarioCreacion(dto.getUsuarioCreacion())
                 .usuarioModifica(dto.getUsuarioModifica())
+                .fechaCreacion(dto.getFechaCreacion())
                 .details(dto.getDetalles().stream()
                         .map(d -> ActivityDetail.builder()
                                 .idArticulo(d.getIdArticulo())

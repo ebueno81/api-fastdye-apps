@@ -57,6 +57,10 @@ public class ActivityEntity {
     @JoinColumn(name = "idAlmacen", referencedColumnName = "c_codi_alm")
     private StoreEntity store;
 
+    @ManyToOne
+    @JoinColumn(name = "idMotivo", referencedColumnName = "c_codi_mt")
+    private ReasonEntity reason;
+
     @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
     private List<ActivityDetailEntity> details;
 }

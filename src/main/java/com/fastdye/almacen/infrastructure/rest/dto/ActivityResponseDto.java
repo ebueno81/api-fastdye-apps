@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -22,5 +23,8 @@ public class ActivityResponseDto {
     private String storeNombre;
     private String userId;
     private String userNombre;
+    private String idReason;
+    private String reasonNombre;
+    private LocalDateTime fechaCreacion;
     private List<ActivityDetailResponse> detalles;
 }

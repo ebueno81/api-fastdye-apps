@@ -4,6 +4,7 @@ import com.fastdye.almacen.domain.model.User;
 import com.fastdye.almacen.infrastructure.persistence.entity.UserEntity;
 
 public class UserMapper {
+
     public static UserEntity toEntity(User model) {
         if (model == null) return null;
 

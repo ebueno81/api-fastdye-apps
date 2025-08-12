@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/activity")
 public class ActivityController {
@@ -30,5 +32,13 @@ public class ActivityController {
         return activityUseCase.buscarPorId(id)
                 .map(activity -> ResponseEntity.ok(ActivityRestMapper.toResponse(activity)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ActivityResponseDto>> list() {
+        var list = activityUseCase.listar(); // o como lo tengas
+        return ResponseEntity.ok(
+                list.stream().map(ActivityRestMapper::toResponse).toList()
+        );
     }
 }

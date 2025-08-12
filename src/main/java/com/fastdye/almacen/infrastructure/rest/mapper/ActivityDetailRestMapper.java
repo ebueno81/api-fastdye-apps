@@ -11,6 +11,7 @@ public class ActivityDetailRestMapper {
                 .lote(model.getNroLote())
                 .peso(model.getPeso())
                 .cajas(model.getCajas())
+                .nombreArticulo(model.getNombreArticulo())
                 .build();
     }
 }

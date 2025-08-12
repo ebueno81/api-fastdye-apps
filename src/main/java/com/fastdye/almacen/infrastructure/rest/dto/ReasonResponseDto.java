@@ -6,14 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ActivityDetailResponse {
-    private int id;
-    private int idArticulo;
-    private String lote;
-    private double peso;
-    private int cajas;
-    private String nombreArticulo;
+public class ReasonResponseDto {
+    private String idReason;
+    private String nameReason;
+    private String typeReason;
 }

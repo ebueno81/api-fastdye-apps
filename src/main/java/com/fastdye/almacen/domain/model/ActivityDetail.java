@@ -16,4 +16,5 @@ public class ActivityDetail {
     private double peso;
     private int cajas;
     private int activo;
+    private String nombreArticulo;
 }
