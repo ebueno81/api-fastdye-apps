@@ -55,7 +55,6 @@ public class ActivityMapper {
                 .reason(ReasonMapper.toModel(entity.getReason()))
                 .store(StoreMapper.toModel(entity.getStore()))
                 .fechaCreacion(entity.getFechaCreacion())
-                .store(StoreMapper.toModel(entity.getStore()))
                 .details(entity.getDetails().stream()
                         .map(ActivityDetailMapper::toModel)
                         .collect(Collectors.toList()))

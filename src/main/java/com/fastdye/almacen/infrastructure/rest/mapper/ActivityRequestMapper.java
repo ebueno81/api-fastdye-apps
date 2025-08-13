@@ -12,6 +12,8 @@ public class ActivityRequestMapper {
                 .observacion(dto.getObservacion())
                 .client(Client.builder().id(dto.getIdCliente()).build())
                 .store(Store.builder().id(dto.getIdAlmacen()).build())
+                .reason(dto.getIdReason() == null ? null :
+                        Reason.builder().idReason(dto.getIdReason()).build())
                 .usuarioCreacion(dto.getUsuarioCreacion())
                 .usuarioModifica(dto.getUsuarioModifica())
                 .fechaCreacion(dto.getFechaCreacion())

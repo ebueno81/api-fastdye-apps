@@ -12,6 +12,7 @@ public class ActivityRequest {
     private String observacion;
     private String idCliente;
     private String idAlmacen;
+    private String idReason;
     private String usuarioCreacion;
     private String usuarioModifica;
     private LocalDateTime fechaCreacion;
