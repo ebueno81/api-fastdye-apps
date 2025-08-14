@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface ClientRepositoryPort {
     Page<Client> findByAll(Pageable pageable);
     Optional<Client> findById(String idCliente);
+    Page<Client> search(String q, Pageable pageable);
 }

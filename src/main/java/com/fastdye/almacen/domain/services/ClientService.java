@@ -25,4 +25,9 @@ public class ClientService implements ClientUseCase {
     public Optional<Client> findByID(String id) {
         return clientRepositoryPort.findById(id);
     }
+
+    @Override
+    public Page<Client> search(String q, Pageable pageable) {
+        return clientRepositoryPort.search(q, pageable);
+    }
 }

@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface ClientUseCase {
     Page<Client> findByAll(Pageable pageable);
     Optional<Client> findByID(String id);
+    Page<Client> search(String q, Pageable pageable);
 }

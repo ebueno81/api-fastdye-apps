@@ -37,13 +37,13 @@ public class ActivityEntity {
     @Column(name = "estado")
     private int estado;
 
-    @Column(name = "usuaCrea")
+    @Column(name = "usuaCrea", length = 10, nullable = false, updatable = false)
     private String usuarioCreacion;
 
     @Column(name = "usuaModi")
     private String usuarioModifica;
 
-    @Column(name = "fechaCrea")
+    @Column(name = "fechaCrea", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
     @Column(name = "fechaModi")

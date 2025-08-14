@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,12 +24,16 @@ public class ClientController {
     ClientUseCase clientUseCase;
 
     @GetMapping
-    @Operation(summary = "Listado de todos los clientes")
+    @Operation(summary = "Listado de todos los clientes (con filtro opcional)")
     public ResponseEntity<Page<ClientResponseDto>> findAll(
+            @RequestParam(value = "q", required = false) String q,
             @ParameterObject
             @PageableDefault(size = 20, sort = "nombreCliente") Pageable pageable) {
 
-        Page<Client> clients = clientUseCase.findByAll(pageable);
+        Page<Client> clients = (q == null || q.isBlank())
+                ? clientUseCase.findByAll(pageable)
+                : clientUseCase.search(q.trim(), pageable);
+
         return ResponseEntity.ok(clients.map(ClientRestMapper::toResponse));
     }
 

@@ -32,7 +32,7 @@ public class JpaActivityRepositoryAdapter implements ActivityRepositoryPort {
 
     @Override
     public List<Activity> findAll() {
-        return activityRepository.findAll()
+        return activityRepository.findAllByOrderByFechaCreacionDesc()
                 .stream()
                 .map(ActivityMapper::toModel)
                 .collect(Collectors.toList());

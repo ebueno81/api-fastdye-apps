@@ -8,4 +8,31 @@ public interface ActivityUseCase {
     Activity registrar(Activity activity);
     Optional<Activity> buscarPorId(int id);
     List<Activity> listar();
+
+    Activity actualizarCabecera(int id, UpdateActivityHeaderCommand cmd);
+    Activity upsertDetalles(int id, UpsertActivityDetailsCommand cmd);
+
+    // Commands simples (parte del port in, no de REST)
+    public static record UpdateActivityHeaderCommand(
+            String nroSerie,
+            String nroGuia,
+            String observacion,
+            String idCliente,
+            String idAlmacen,
+            String idReason,
+            String usuarioModifica
+    ) {}
+
+    public static record UpsertActivityDetailsCommand(
+            java.util.List<DetailToCreate> toCreate,
+            java.util.List<DetailToUpdate> toUpdate,
+            java.util.List<Integer> toDelete
+    ) {
+        public static record DetailToCreate(
+                Integer idArticulo, String nroLote, Double peso, Integer cajas
+        ) {}
+        public static record DetailToUpdate(
+                Integer id, Integer idArticulo, String nroLote, Double peso, Integer cajas
+        ) {}
+    }
 }

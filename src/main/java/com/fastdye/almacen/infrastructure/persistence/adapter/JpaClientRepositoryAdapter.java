@@ -28,4 +28,10 @@ public class JpaClientRepositoryAdapter implements ClientRepositoryPort {
         return clientRepository.findById(idCliente)
                 .map(ClientMapper::toModel);
     }
+
+    @Override
+    public Page<Client> search(String q, Pageable pageable) {
+        return clientRepository.search(q, pageable)
+                .map(ClientMapper::toModel);
+    }
 }
