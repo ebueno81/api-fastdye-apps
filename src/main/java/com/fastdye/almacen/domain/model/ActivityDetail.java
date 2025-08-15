@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ActivityDetail {
     private int id;
-    private int idArticulo;
+    private int idActividad;
+    private Integer idArticulo;
     private String nroLote;
     private double peso;
     private int cajas;

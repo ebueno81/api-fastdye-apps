@@ -18,10 +18,6 @@ public class ActivityService implements ActivityUseCase {
     @Autowired
     ActivityRepositoryPort activityRepositoryPort;
 
-    public ActivityService(ActivityRepositoryPort activityRepositoryPort) {
-        this.activityRepositoryPort = activityRepositoryPort;
-    }
-
     @Override
     public Activity registrar(Activity activity) {
         return activityRepositoryPort.save(activity);
@@ -73,8 +69,11 @@ public class ActivityService implements ActivityUseCase {
         if (cmd.toUpdate() != null) {
             for (var u : cmd.toUpdate()) {
                 ActivityDetail ex = byId.get(u.id());
-                if (ex == null) continue; // o lanza 404
-                ex.setIdArticulo(u.idArticulo());
+                if (ex == null) continue; // o lanzar 404
+
+                if (u.idArticulo() != null && u.idArticulo() > 0) {
+                    ex.setIdArticulo(u.idArticulo());
+                }
                 ex.setNroLote(u.nroLote());
                 ex.setPeso(u.peso());
                 ex.setCajas(u.cajas());
@@ -84,6 +83,9 @@ public class ActivityService implements ActivityUseCase {
         // CREATE
         if (cmd.toCreate() != null) {
             for (var c : cmd.toCreate()) {
+                if (c.idArticulo() == null || c.idArticulo() <= 0) {
+                    throw new IllegalArgumentException("Debe especificar un artículo válido para crear el detalle");
+                }
                 ActivityDetail nd = ActivityDetail.builder()
                         .idArticulo(c.idArticulo())
                         .nroLote(c.nroLote())

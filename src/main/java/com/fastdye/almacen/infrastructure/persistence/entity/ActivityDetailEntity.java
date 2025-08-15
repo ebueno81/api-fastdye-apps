@@ -17,6 +17,9 @@ public class ActivityDetailEntity {
     @Column(name = "id")
     private int id;
 
+    @Column(name = "idActividad", insertable = false, updatable = false)
+    private int idActividad;
+
     @Column(name = "cajas")
     private int cajas;
 

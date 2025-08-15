@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ActivityDetailRequest {
     private int idArticulo;
+    private int idActividad;
     private String nroLote;
     private double peso;
     private int cajas;

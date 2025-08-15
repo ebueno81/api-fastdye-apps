@@ -18,7 +18,7 @@ public class ArticleEntity {
 
     @Id
     @Column(name = "id")
-    private int id;
+    private Integer id;
 
     @Column(name = "c_desc_scdcompra")
     private String nombreArticulo;

@@ -1,11 +1,11 @@
 package com.fastdye.almacen.infrastructure.rest.controller;
 
 import com.fastdye.almacen.domain.model.Activity;
+import com.fastdye.almacen.domain.model.ActivityDetail;
+import com.fastdye.almacen.domain.ports.in.ActivityDetailUseCase;
 import com.fastdye.almacen.domain.ports.in.ActivityUseCase;
-import com.fastdye.almacen.infrastructure.rest.dto.ActivityRequest;
-import com.fastdye.almacen.infrastructure.rest.dto.ActivityResponseDto;
-import com.fastdye.almacen.infrastructure.rest.dto.UpdateActivityHeaderRequest;
-import com.fastdye.almacen.infrastructure.rest.dto.UpsertActivityDetailsRequest;
+import com.fastdye.almacen.infrastructure.rest.dto.*;
+import com.fastdye.almacen.infrastructure.rest.mapper.ActivityDetailRestMapper;
 import com.fastdye.almacen.infrastructure.rest.mapper.ActivityRequestMapper;
 import com.fastdye.almacen.infrastructure.rest.mapper.ActivityRestMapper;
 import com.fastdye.almacen.infrastructure.rest.mapper.UpsertDetailsRestMapper;
@@ -22,6 +22,8 @@ import java.util.List;
 public class ActivityController {
     @Autowired
     ActivityUseCase activityUseCase;
+    @Autowired
+    ActivityDetailUseCase activityDetailUseCase;
 
     @PostMapping
     public ResponseEntity<ActivityResponseDto> save(@RequestBody ActivityRequest request){
@@ -76,5 +78,33 @@ public class ActivityController {
         return ResponseEntity.ok(
                 list.stream().map(ActivityRestMapper::toResponse).toList()
         );
+    }
+
+    // Crear detalle
+    @PostMapping("/{id}/details")
+    @Operation(summary = "Crear detalle por separado")
+    public ResponseEntity<ActivityDetail> crearDetalle(
+            @PathVariable int id,
+            @RequestBody ActivityDetailRequest request) {
+        ActivityDetail detail = ActivityDetailRestMapper.toDomain(request);
+        return ResponseEntity.ok(activityDetailUseCase.crearDetalle(detail));
+    }
+
+    // Actualizar detalle
+    @PutMapping("/details/{detailId}")
+    @Operation(summary = "Actualizar detalle")
+    public ResponseEntity<ActivityDetail> actualizarDetalle(
+            @PathVariable int detailId,
+            @RequestBody ActivityDetailRequest request) {
+        ActivityDetail detail = ActivityDetailRestMapper.toDomain(request);
+        return ResponseEntity.ok(activityDetailUseCase.actualizarDetalle(detailId, detail));
+    }
+
+    // Anular detalle
+    @PatchMapping("/details/{detailId}/anular")
+    @Operation(summary = "anular detalle por id")
+    public ResponseEntity<Void> anularDetalle(@PathVariable int detailId) {
+        activityDetailUseCase.anularDetalle(detailId);
+        return ResponseEntity.noContent().build();
     }
 }
