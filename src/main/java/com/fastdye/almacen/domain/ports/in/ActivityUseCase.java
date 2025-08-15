@@ -1,6 +1,9 @@
 package com.fastdye.almacen.domain.ports.in;
 
 import com.fastdye.almacen.domain.model.Activity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +14,8 @@ public interface ActivityUseCase {
 
     Activity actualizarCabecera(int id, UpdateActivityHeaderCommand cmd);
     Activity upsertDetalles(int id, UpsertActivityDetailsCommand cmd);
+
+    Page<Activity> listarSoloCabecera(String nombreCliente, Pageable pageable);
 
     // Commands simples (parte del port in, no de REST)
     public static record UpdateActivityHeaderCommand(

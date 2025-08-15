@@ -60,4 +60,21 @@ public class ActivityMapper {
                         .collect(Collectors.toList()))
                 .build();
     }
+
+    public static Activity toModelWithoutDetails(ActivityEntity entity) {
+        if (entity == null) return null;
+
+        return Activity.builder()
+                .id(entity.getId())
+                .nroSerie(entity.getNroSerie())
+                .nroGuia(entity.getNroGuia())
+                .observacion(entity.getObservacion())
+                .client(ClientMapper.toModel(entity.getClient()))
+                .reason(ReasonMapper.toModel(entity.getReason()))
+                .store(StoreMapper.toModel(entity.getStore()))
+                .fechaCreacion(entity.getFechaCreacion())
+                // No asignamos detalles
+                .details(List.of())
+                .build();
+    }
 }

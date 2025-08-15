@@ -4,6 +4,8 @@ import com.fastdye.almacen.domain.model.*;
 import com.fastdye.almacen.domain.ports.in.ActivityUseCase;
 import com.fastdye.almacen.domain.ports.out.ActivityRepositoryPort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -98,4 +100,10 @@ public class ActivityService implements ActivityUseCase {
 
         return activityRepositoryPort.save(current);
     }
+
+    @Override
+    public Page<Activity> listarSoloCabecera(String nombreCliente, Pageable pageable) {
+        return activityRepositoryPort.findAllHeadersByClientName(nombreCliente,pageable);
+    }
+
 }

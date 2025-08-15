@@ -6,6 +6,8 @@ import com.fastdye.almacen.infrastructure.persistence.entity.ActivityEntity;
 import com.fastdye.almacen.infrastructure.persistence.mapper.ActivityMapper;
 import com.fastdye.almacen.infrastructure.persistence.repository.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,5 +38,11 @@ public class JpaActivityRepositoryAdapter implements ActivityRepositoryPort {
                 .stream()
                 .map(ActivityMapper::toModel)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<Activity> findAllHeadersByClientName(String nombreCliente, Pageable pageable) {
+        return activityRepository.findAllHeadersByClientName(nombreCliente, pageable)
+                .map(ActivityMapper::toModelWithoutDetails);
     }
 }
