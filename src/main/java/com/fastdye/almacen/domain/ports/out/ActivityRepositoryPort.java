@@ -1,6 +1,7 @@
 package com.fastdye.almacen.domain.ports.out;
 
 import com.fastdye.almacen.domain.model.Activity;
+import com.fastdye.almacen.infrastructure.rest.dto.ActivityHeaderDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,5 +12,5 @@ public interface ActivityRepositoryPort {
     Activity save(Activity activity);
     Optional<Activity> findById(int id);
     List<Activity> findAll();
-    Page<Activity> findAllHeadersByClientName(String nombreCliente, Pageable pageable);
+    Page<ActivityHeaderDto> listarSoloCabecera(String nombreCliente, Pageable pageable);
 }

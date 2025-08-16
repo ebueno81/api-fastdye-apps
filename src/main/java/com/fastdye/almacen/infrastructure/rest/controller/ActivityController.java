@@ -12,6 +12,7 @@ import com.fastdye.almacen.infrastructure.rest.mapper.UpsertDetailsRestMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,11 +112,14 @@ public class ActivityController {
     }
 
     @GetMapping("/activities/headers")
-    public Page<Activity> listarSoloCabecera(
-            @RequestParam String nombreCliente,
-            Pageable pageable
+    public Page<ActivityHeaderDto> listarHeaders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String nombreCliente
     ) {
+        Pageable pageable = PageRequest.of(page, size); // 👉 sin ordenamiento
         return activityUseCase.listarSoloCabecera(nombreCliente, pageable);
     }
+
 
 }

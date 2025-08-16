@@ -3,9 +3,11 @@ package com.fastdye.almacen.infrastructure.persistence.mapper;
 import com.fastdye.almacen.domain.model.Activity;
 import com.fastdye.almacen.infrastructure.persistence.entity.ActivityDetailEntity;
 import com.fastdye.almacen.infrastructure.persistence.entity.ActivityEntity;
+import com.fastdye.almacen.infrastructure.rest.dto.ActivityHeaderDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ActivityMapper {
@@ -75,6 +77,31 @@ public class ActivityMapper {
                 .fechaCreacion(entity.getFechaCreacion())
                 // No asignamos detalles
                 .details(List.of())
+                .build();
+    }
+
+    public static ActivityHeaderDto toHeaderDto(ActivityEntity entity) {
+        if (entity == null) return null;
+
+        double totalPeso = 0.0;
+         totalPeso = entity.getDetails().stream()
+                .mapToDouble(d -> Objects.isNull(d.getPeso()) ? 0.0 : d.getPeso())
+                .sum();
+
+        return ActivityHeaderDto.builder()
+                .id(entity.getId())
+                .nroSerie(entity.getNroSerie())
+                .nroGuia(entity.getNroGuia())
+                .observacion(entity.getObservacion())
+                .clientId(entity.getClient() != null ? entity.getClient().getIdCliente() : null)
+                .clientNombre(entity.getClient() != null ? entity.getClient().getNombreCliente() : null)
+                .storeId(entity.getStore() != null ? entity.getStore().getIdAlmacen() : null)
+                .storeNombre(entity.getStore() != null ? entity.getStore().getNombreAlmacen() : null)
+                .idReason(entity.getReason() != null ? entity.getReason().getIdReason() : null)
+                .reasonNombre(entity.getReason() != null ? entity.getReason().getNameReason() : null)
+                .usuarioCreacion(entity.getUsuarioCreacion())
+                .usuarioModifica(entity.getUsuarioModifica())
+                .fechaCreacion(entity.getFechaCreacion())
                 .build();
     }
 }

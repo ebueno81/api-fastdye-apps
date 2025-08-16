@@ -11,11 +11,12 @@ import java.util.List;
 
 public interface ActivityRepository extends JpaRepository<ActivityEntity, Integer> {
     List<ActivityEntity> findAllByOrderByFechaCreacionDesc();
-    @Query("""
-        SELECT a
-        FROM ActivityEntity a
-        JOIN a.client c
-        WHERE LOWER(c.nombre) LIKE LOWER(CONCAT('%', :nombreCliente, '%'))
-    """)
-    Page<ActivityEntity> findAllHeadersByClientName(@Param("nombreCliente") String nombreCliente, Pageable pageable);
+    @Query("SELECT DISTINCT a FROM ActivityEntity a " +
+            "JOIN a.client c " +
+            "LEFT JOIN FETCH a.details d " +
+            "WHERE (:nombreCliente IS NULL OR c.nombreCliente LIKE %:nombreCliente%)")
+    Page<ActivityEntity> findAllHeadersByClientName(@Param("nombreCliente") String nombreCliente,
+                                                    Pageable pageable);
+
+
 }

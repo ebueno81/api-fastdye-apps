@@ -5,6 +5,7 @@ import com.fastdye.almacen.domain.ports.out.ActivityRepositoryPort;
 import com.fastdye.almacen.infrastructure.persistence.entity.ActivityEntity;
 import com.fastdye.almacen.infrastructure.persistence.mapper.ActivityMapper;
 import com.fastdye.almacen.infrastructure.persistence.repository.ActivityRepository;
+import com.fastdye.almacen.infrastructure.rest.dto.ActivityHeaderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,8 +42,15 @@ public class JpaActivityRepositoryAdapter implements ActivityRepositoryPort {
     }
 
     @Override
-    public Page<Activity> findAllHeadersByClientName(String nombreCliente, Pageable pageable) {
-        return activityRepository.findAllHeadersByClientName(nombreCliente, pageable)
-                .map(ActivityMapper::toModelWithoutDetails);
+    public Page<ActivityHeaderDto> listarSoloCabecera(String nombreCliente, Pageable pageable) {
+        Page<ActivityEntity> page;
+        if (nombreCliente != null && !nombreCliente.isBlank()) {
+            page = activityRepository.findAllHeadersByClientName(nombreCliente, pageable);
+        } else {
+            page = activityRepository.findAll(pageable);
+        }
+
+        return page.map(ActivityMapper::toHeaderDto);
     }
+
 }
