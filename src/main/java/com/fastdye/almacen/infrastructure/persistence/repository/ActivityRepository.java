@@ -10,7 +10,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ActivityRepository extends JpaRepository<ActivityEntity, Integer> {
+
     List<ActivityEntity> findAllByOrderByFechaCreacionDesc();
+
     @Query("SELECT DISTINCT a FROM ActivityEntity a " +
             "JOIN a.client c " +
             "LEFT JOIN FETCH a.details d " +
