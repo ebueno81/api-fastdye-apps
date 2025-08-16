@@ -111,7 +111,7 @@ public class ActivityController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/activities/headers")
+    @GetMapping("/headers")
     public Page<ActivityHeaderDto> listarHeaders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
