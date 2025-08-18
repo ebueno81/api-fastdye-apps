@@ -5,6 +5,8 @@ import com.fastdye.almacen.domain.ports.out.ArticleRepositoryPort;
 import com.fastdye.almacen.infrastructure.persistence.mapper.ArticleMapper;
 import com.fastdye.almacen.infrastructure.persistence.repository.ArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,6 +30,18 @@ public class JpaArticleRepositoryAdapter implements ArticleRepositoryPort {
     @Override
     public Optional<Article> findById(int id) {
         return articleRepository.findById(id)
+                .map(ArticleMapper::toModel);
+    }
+
+    @Override
+    public Page<Article> findAllPage(Pageable pageable) {
+        return articleRepository.findByActivos(pageable)
+                .map(ArticleMapper::toModel);
+    }
+
+    @Override
+    public Page<Article> search(String q, Pageable pageable) {
+        return articleRepository.search(q, pageable)
                 .map(ArticleMapper::toModel);
     }
 }

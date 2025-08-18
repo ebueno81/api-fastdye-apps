@@ -29,7 +29,6 @@ public class ClientController {
             @RequestParam(value = "q", required = false) String q,
             @ParameterObject
             @PageableDefault(size = 20, sort = "nombreCliente") Pageable pageable) {
-
         Page<Client> clients = (q == null || q.isBlank())
                 ? clientUseCase.findByAll(pageable)
                 : clientUseCase.search(q.trim(), pageable);

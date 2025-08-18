@@ -26,6 +26,18 @@ public class ArticleEntity {
     @Column(name = "c_anula_reg")
     private int anulaReg;
 
+    @Column(name = "c_codi_tg")
+    private String codigoTg;
+
+    @Column(name = "c_codi_cd")
+    private String codigoCd;
+
+    @Column(name = "c_codi_scd")
+    private String codigoScd;
+
+    @Column(name = "c_opc_noinventario")
+    private int opcNoInventario;
+
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<ActivityDetailEntity> activityDetailEntityList;
 }
