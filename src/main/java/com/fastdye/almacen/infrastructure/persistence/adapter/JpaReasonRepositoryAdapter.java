@@ -19,7 +19,7 @@ public class JpaReasonRepositoryAdapter implements ReasonRepositoryPort {
 
     @Override
     public List<Reason> findAll() {
-        return reasonRepository.findByActive(0)
+        return reasonRepository.findByActiveAndTypeReason(0,"ING")
                 .stream()
                 .map(ReasonMapper::toModel)
                 .collect(Collectors.toList());

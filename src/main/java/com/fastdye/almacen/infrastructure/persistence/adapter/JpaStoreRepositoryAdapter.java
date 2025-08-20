@@ -19,7 +19,7 @@ public class JpaStoreRepositoryAdapter implements StoreRepositoryPort {
 
     @Override
     public List<Store> findAll() {
-        return storeRepository.findAll()
+        return storeRepository.findByAnulaReg(0)
                 .stream()
                 .map(StoreMapper::toModel)
                 .collect(Collectors.toList());

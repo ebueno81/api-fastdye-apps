@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ReasonRepository extends JpaRepository<ReasonEntity,String> {
-    List<ReasonEntity> findByActive(Integer active);
+    List<ReasonEntity> findByActiveAndTypeReason(Integer active, String typeReason);
 }

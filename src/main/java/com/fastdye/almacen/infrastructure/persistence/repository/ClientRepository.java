@@ -11,8 +11,8 @@ public interface ClientRepository extends JpaRepository<ClientEntity,String> {
     @Query("""
            select c
            from ClientEntity c
-           where lower(c.nombreCliente) like lower(concat('%', :q, '%'))
-              or lower(c.idCliente)      like lower(concat('%', :q, '%'))
+           where c.anulaReg=0 and (lower(c.nombreCliente) like lower(concat('%', :q, '%'))
+              or lower(c.idCliente)      like lower(concat('%', :q, '%')))
            """)
     Page<ClientEntity> search(@Param("q") String q, Pageable pageable);
 }
