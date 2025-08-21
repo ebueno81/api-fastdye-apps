@@ -2,6 +2,7 @@ package com.fastdye.almacen.domain.services;
 
 import com.fastdye.almacen.domain.model.*;
 import com.fastdye.almacen.domain.ports.in.ActivityUseCase;
+import com.fastdye.almacen.domain.ports.out.ActivityProcessPort;
 import com.fastdye.almacen.domain.ports.out.ActivityRepositoryPort;
 import com.fastdye.almacen.infrastructure.rest.dto.ActivityHeaderDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class ActivityService implements ActivityUseCase {
 
     @Autowired
     ActivityRepositoryPort activityRepositoryPort;
+
+    @Autowired
+    ActivityProcessPort processPort;
 
     @Override
     public Activity registrar(Activity activity) {
@@ -105,6 +109,20 @@ public class ActivityService implements ActivityUseCase {
     @Override
     public Page<ActivityHeaderDto> listarSoloCabecera(String nombreCliente, Pageable pageable) {
         return activityRepositoryPort.listarSoloCabecera(nombreCliente, pageable);
+    }
+
+    @Override
+    public int procesarActividad(int idActividad, String usuario) {
+        // (opcional) Validación previa desde dominio:
+        Activity act = activityRepositoryPort.findById(idActividad)
+                .orElseThrow(() -> new NoSuchElementException("Actividad " + idActividad + " no existe"));
+
+        // Si quisieras reforzar reglas antes del SP:
+        // if (act.getIdIngreso() != 0 || act.getEstado() != 0 || act.getActivo() != 1) { throw new IllegalStateException(...); }
+
+        int idIngreso = processPort.procesarActividad(idActividad, usuario);
+        if (idIngreso <= 0) throw new IllegalStateException("El SP no devolvió un idIngresoCreado válido.");
+        return idIngreso;
     }
 
 }

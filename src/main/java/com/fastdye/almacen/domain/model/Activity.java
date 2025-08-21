@@ -18,6 +18,7 @@ public class Activity {
     private String nroGuia;
     private String observacion;
     private int activo;
+    private int estado;
     private Client client;
     private Store store;
     private Reason reason;

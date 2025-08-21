@@ -18,6 +18,7 @@ public interface ActivityUseCase {
 
     Page<ActivityHeaderDto> listarSoloCabecera(String nombreCliente, Pageable pageable);
 
+    int procesarActividad(int idActividad, String usuario);
 
     // Commands simples (parte del port in, no de REST)
     public static record UpdateActivityHeaderCommand(

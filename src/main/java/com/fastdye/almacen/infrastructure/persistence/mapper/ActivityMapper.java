@@ -103,6 +103,7 @@ public class ActivityMapper {
                 .usuarioModifica(entity.getUsuarioModifica())
                 .fechaCreacion(entity.getFechaCreacion())
                 .totalPeso(totalPeso)
+                .estado(entity.getEstado())
                 .build();
     }
 }

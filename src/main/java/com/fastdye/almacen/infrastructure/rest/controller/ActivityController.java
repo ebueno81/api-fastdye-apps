@@ -4,6 +4,7 @@ import com.fastdye.almacen.domain.model.Activity;
 import com.fastdye.almacen.domain.model.ActivityDetail;
 import com.fastdye.almacen.domain.ports.in.ActivityDetailUseCase;
 import com.fastdye.almacen.domain.ports.in.ActivityUseCase;
+import com.fastdye.almacen.infrastructure.realtime.ActivityEventBus;
 import com.fastdye.almacen.infrastructure.rest.dto.*;
 import com.fastdye.almacen.infrastructure.rest.mapper.ActivityDetailRestMapper;
 import com.fastdye.almacen.infrastructure.rest.mapper.ActivityRequestMapper;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Sinks;
 
 import java.net.URI;
 import java.util.List;
@@ -24,10 +26,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/activity")
 public class ActivityController {
+
     @Autowired
     ActivityUseCase activityUseCase;
     @Autowired
     ActivityDetailUseCase activityDetailUseCase;
+    @Autowired
+    Sinks.Many<ActivityEventBus.ProcessActivityEvent> sink;
 
     @PostMapping
     public ResponseEntity<ActivityResponseDto> save(@RequestBody ActivityRequest request){
@@ -120,6 +125,26 @@ public class ActivityController {
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").descending());
         return activityUseCase.listarSoloCabecera(nombreCliente, pageable);
+    }
+
+    @PostMapping("/{id}/process")
+    public ResponseEntity<ProcessActivityResponse> process(
+            @PathVariable int id,
+            @RequestParam(name="user", required=false) String user) {
+
+        String usuario = (user != null && !user.isBlank()) ? user : "system";
+        try {
+            int nuevoId = activityUseCase.procesarActividad(id, usuario);
+
+            // 🔔 Notificar a todos los clientes suscritos
+            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(id, nuevoId, "PROCESSED"));
+
+            return ResponseEntity.ok(new ProcessActivityResponse(id, nuevoId, "PROCESSED"));
+        } catch (Exception ex) {
+            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(id, 0, "ERROR"));
+            return ResponseEntity.badRequest()
+                    .body(new ProcessActivityResponse(id, 0, "ERROR: " + ex.getMessage()));
+        }
     }
 
 

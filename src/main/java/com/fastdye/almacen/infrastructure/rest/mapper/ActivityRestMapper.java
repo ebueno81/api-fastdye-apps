@@ -42,6 +42,7 @@ public class ActivityRestMapper {
                 .usuarioCreacion(activity.getUsuarioCreacion())
                 .usuarioModifica(activity.getUsuarioModifica())
                 .fechaCreacion(activity.getFechaCreacion())
+                .estado(activity.getEstado())
                 .build();
     }
 

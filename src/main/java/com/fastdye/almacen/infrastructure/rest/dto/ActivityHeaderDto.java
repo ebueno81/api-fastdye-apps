@@ -21,6 +21,7 @@ public class ActivityHeaderDto {
 
     private String idReason;
     private String reasonNombre;
+    private int estado;
 
     private String usuarioCreacion;
     private String usuarioModifica;
