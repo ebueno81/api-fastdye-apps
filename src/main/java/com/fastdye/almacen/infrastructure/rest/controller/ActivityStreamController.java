@@ -22,7 +22,8 @@ public class ActivityStreamController {
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stream() {
         SseEmitter emitter = new SseEmitter(0L); // sin timeout
-        // Suscríbete al sink + heartbeat
+
+        // Unimos eventos reales + heartbeat
         Flux<ActivityEventBus.ProcessActivityEvent> flux = sink.asFlux()
                 .mergeWith(Flux.interval(Duration.ofSeconds(15))
                         .map(t -> new ActivityEventBus.ProcessActivityEvent(-1, -1, "HEARTBEAT")));
@@ -31,7 +32,7 @@ public class ActivityStreamController {
                     try {
                         emitter.send(SseEmitter.event()
                                 .name("activity")
-                                .data(ev)); // se serializa a JSON automáticamente
+                                .data(ev)); // JSON con {activityId, idIngresoCreado, status}
                     } catch (IOException e) {
                         emitter.completeWithError(e);
                     }

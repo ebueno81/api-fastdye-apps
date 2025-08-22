@@ -138,12 +138,22 @@ public class ActivityController {
         String usuario = (user != null && !user.isBlank()) ? user : "system";
         try {
             int nuevoId = activityUseCase.procesarActividad(id, usuario);
+
+            // 🔔 Notificar a TODOS los suscriptores SSE
+            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(
+                    id, nuevoId, "PROCESSED"
+            ));
+
             return ResponseEntity.ok(new ProcessActivityResponse(id, nuevoId, "PROCESSED"));
         } catch (Exception ex) {
+            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(
+                    id, 0, "ERROR"
+            ));
             return ResponseEntity.badRequest()
                     .body(new ProcessActivityResponse(id, 0, "ERROR: " + ex.getMessage()));
         }
     }
+
 
     // Stream global de eventos
     @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

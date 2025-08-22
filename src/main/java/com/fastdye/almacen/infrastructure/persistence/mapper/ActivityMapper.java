@@ -23,7 +23,7 @@ public class ActivityMapper {
                 .client(ClientMapper.toEntity(model.getClient()))
                 .store(StoreMapper.toEntity(model.getStore()))
                 .reason(ReasonMapper.toEntity(model.getReason()))
-                .estado(1)
+                .estado(0)
                 .activo(1)
                 .usuarioCreacion(model.getUsuarioCreacion())
                 .usuarioModifica(model.getUsuarioModifica())
