@@ -14,4 +14,5 @@ public class ActivityEventBus {
     }
 
     public record ProcessActivityEvent(int activityId, int idIngresoCreado, String status) {}
+
 }

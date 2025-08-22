@@ -16,11 +16,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 
 @RestController
@@ -135,17 +138,25 @@ public class ActivityController {
         String usuario = (user != null && !user.isBlank()) ? user : "system";
         try {
             int nuevoId = activityUseCase.procesarActividad(id, usuario);
-
-            // 🔔 Notificar a todos los clientes suscritos
-            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(id, nuevoId, "PROCESSED"));
-
             return ResponseEntity.ok(new ProcessActivityResponse(id, nuevoId, "PROCESSED"));
         } catch (Exception ex) {
-            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(id, 0, "ERROR"));
             return ResponseEntity.badRequest()
                     .body(new ProcessActivityResponse(id, 0, "ERROR: " + ex.getMessage()));
         }
     }
 
+    // Stream global de eventos
+    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ActivityEventBus.ProcessActivityEvent> stream() {
+        // Opcional: heartbeat para mantener viva la conexión
+        return sink.asFlux()
+                .mergeWith(Flux.interval(Duration.ofSeconds(15))
+                        .map(t -> new ActivityEventBus.ProcessActivityEvent(-1, -1, "HEARTBEAT")));
+    }
 
+    // (Opcional) Stream por actividad concreta
+    @GetMapping(path = "/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ActivityEventBus.ProcessActivityEvent> streamById(@PathVariable int id) {
+        return sink.asFlux().filter(ev -> ev.activityId() == id);
+    }
 }
