@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "apiapps"
+        IMAGE_NAME = "ebueno81/apiapps"
         TAG = "latest"
         CONTAINER_NAME = "ctnapiapps"
         SERVER = "45.149.207.118"
