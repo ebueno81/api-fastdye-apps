@@ -1,11 +1,8 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "ebueno81/apiapps"
-        TAG = "latest"
-        CONTAINER_NAME = "ctnapiapps"
-        SERVER = "45.149.207.118"
+    parameters {
+        choice(name: 'DEPLOY_ENV', choices: ['test', 'prod'], description: 'Selecciona el entorno de despliegue')
     }
 
     stages {
@@ -15,41 +12,65 @@ pipeline {
             }
         }
 
-        stage('Build with Maven') {
+        stage('Configurar variables de entorno') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                script {
+                    if (params.DEPLOY_ENV == 'test') {
+                        withCredentials([
+                            string(credentialsId: 'DB_URL_TEST', variable: 'DB_URL'),
+                            string(credentialsId: 'DB_USER_TEST', variable: 'DB_USER'),
+                            string(credentialsId: 'DB_PASS_TEST', variable: 'DB_PASS'),
+                            string(credentialsId: 'PROFILE_ACTIVE_TEST', variable: 'PROFILE_ACTIVE')
+                        ]) {
+                            env.DB_URL = DB_URL
+                            env.DB_USER = DB_USER
+                            env.DB_PASS = DB_PASS
+                            env.PROFILE_ACTIVE = PROFILE_ACTIVE
+                        }
+                    } else {
+                        withCredentials([
+                            string(credentialsId: 'DB_URL_PROD', variable: 'DB_URL'),
+                            string(credentialsId: 'DB_USER_PROD', variable: 'DB_USER'),
+                            string(credentialsId: 'DB_PASS_PROD', variable: 'DB_PASS'),
+                            string(credentialsId: 'PROFILE_ACTIVE_PROD', variable: 'PROFILE_ACTIVE')
+                        ]) {
+                            env.DB_URL = DB_URL
+                            env.DB_USER = DB_USER
+                            env.DB_PASS = DB_PASS
+                            env.PROFILE_ACTIVE = PROFILE_ACTIVE
+                        }
+                    }
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 sh """
-                  docker build -t ${IMAGE_NAME}:${TAG} .
+                  docker build \
+                    --build-arg DB_URL=${env.DB_URL} \
+                    --build-arg DB_USER=${env.DB_USER} \
+                    --build-arg DB_PASS=${env.DB_PASS} \
+                    --build-arg PROFILE_ACTIVE=${env.PROFILE_ACTIVE} \
+                    -t ebueno81/apiapps:${params.DEPLOY_ENV} .
                 """
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh """
-                      echo "$PASS" | docker login -u "$USER" --password-stdin
-                      docker push ${IMAGE_NAME}:${TAG}
-                    """
-                }
             }
         }
 
         stage('Deploy to Server') {
             steps {
                 sshagent(['vm-ssh']) {
-                    sh '''
+                    sh """
                       ssh -o StrictHostKeyChecking=no root@45.149.207.118 "
-                        docker pull ebueno81/apiapps:latest &&
                         docker rm -f ctnapiapps || true &&
-                        docker run -d --name ctnapiapps --restart unless-stopped -p 5015:8080 ebueno81/apiapps:latest
+                        docker run -d --name ctnapiapps --restart unless-stopped -p 5015:8080 \
+                          -e SPRING_DATASOURCE_URL=${env.DB_URL} \
+                          -e SPRING_DATASOURCE_USERNAME=${env.DB_USER} \
+                          -e SPRING_DATASOURCE_PASSWORD=${env.DB_PASS} \
+                          -e SPRING_PROFILES_ACTIVE=${env.PROFILE_ACTIVE} \
+                          ebueno81/apiapps:${params.DEPLOY_ENV}
                       "
-                    '''
+                    """
                 }
             }
         }
