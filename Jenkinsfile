@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "ebueno81/miapp"
+        IMAGE_NAME = "apiapps"
         TAG = "latest"
+        CONTAINER_NAME = "ctnapiapps"
+        SERVER = "45.149.207.118"
     }
 
     stages {
