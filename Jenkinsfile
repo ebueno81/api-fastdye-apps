@@ -10,7 +10,6 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Esto ya no usa '*/main', sino que Jenkins detecta la rama en ejecución
                 checkout scm
             }
         }
@@ -22,22 +21,22 @@ pipeline {
                     echo "Branch detectado: ${branch}"
 
                     if (branch == "main" || branch == "origin/main") {
-                        env.DEPLOY_ENV = "prod"
+                        env.IMAGE_NAME = "ebueno81/apiapps"
+                        env.CONTAINER_NAME = "ctnapiapps"
+                        env.PROFILE_ACTIVE = "pdn"
                         env.DB_URL_CRED = "DB_URL_PROD"
                         env.DB_USER_CRED = "DB_USER_PROD"
                         env.DB_PASS_CRED = "DB_PASS_PROD"
-                        env.PROFILE_ACTIVE_CRED = "PROFILE_ACTIVE_PROD"
                     } else if (branch == "qa" || branch == "origin/qa") {
-                        env.DEPLOY_ENV = "test"
-                        env.DB_URL_CRED = "DB_URL_TEST"
-                        env.DB_USER_CRED = "DB_USER_TEST"
-                        env.DB_PASS_CRED = "DB_PASS_TEST"
-                        env.PROFILE_ACTIVE_CRED = "PROFILE_ACTIVE_TEST"
+                        env.IMAGE_NAME = "ebueno81/apiapps-qa"
+                        env.CONTAINER_NAME = "ctnapiapps-qa"
+                        env.PROFILE_ACTIVE = "qa"
+                        env.DB_URL_CRED = "DB_URL_QA"
+                        env.DB_USER_CRED = "DB_USER_QA"
+                        env.DB_PASS_CRED = "DB_PASS_QA"
                     } else {
                         error("La rama ${branch} no tiene despliegue configurado")
                     }
-
-                    echo "Entorno de despliegue: ${env.DEPLOY_ENV}"
                 }
             }
         }
@@ -50,7 +49,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${TAG} ."
+                sh "docker build -t ${env.IMAGE_NAME}:${env.TAG} ."
             }
         }
 
@@ -58,8 +57,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh """
-                      echo "$PASS" | docker login -u "$USER" --password-stdin
-                      docker push ${IMAGE_NAME}:${TAG}
+                        echo "$PASS" | docker login -u "$USER" --password-stdin
+                        docker push ${env.IMAGE_NAME}:${env.TAG}
                     """
                 }
             }
@@ -69,21 +68,20 @@ pipeline {
             steps {
                 sshagent(['vm-ssh']) {
                     withCredentials([
-                        string(credentialsId: "${DB_URL_CRED}", variable: 'DB_URL'),
-                        string(credentialsId: "${DB_USER_CRED}", variable: 'DB_USER'),
-                        string(credentialsId: "${DB_PASS_CRED}", variable: 'DB_PASS'),
-                        string(credentialsId: "${PROFILE_ACTIVE_CRED}", variable: 'PROFILE_ACTIVE')
+                        string(credentialsId: "${env.DB_URL_CRED}", variable: 'DB_URL'),
+                        string(credentialsId: "${env.DB_USER_CRED}", variable: 'DB_USER'),
+                        string(credentialsId: "${env.DB_PASS_CRED}", variable: 'DB_PASS')
                     ]) {
                         sh """
-                          ssh -o StrictHostKeyChecking=no root@${SERVER} '
-                            docker pull ${IMAGE_NAME}:${TAG} &&
-                            docker rm -f ${CONTAINER_NAME} || true &&
-                            docker run -d --name ${CONTAINER_NAME} --restart unless-stopped -p 5015:8080 \
-                              -e SPRING_PROFILES_ACTIVE=${PROFILE_ACTIVE} \
-                              -e SPRING_DATASOURCE_URL=${DB_URL} \
-                              -e SPRING_DATASOURCE_USERNAME=${DB_USER} \
-                              -e SPRING_DATASOURCE_PASSWORD=${DB_PASS} \
-                              ${IMAGE_NAME}:${TAG}
+                          ssh -o StrictHostKeyChecking=no root@${env.SERVER} '
+                            docker pull ${env.IMAGE_NAME}:${env.TAG} &&
+                            docker rm -f ${env.CONTAINER_NAME} || true &&
+                            docker run -d --name ${env.CONTAINER_NAME} --restart unless-stopped -p 5015:8080 \
+                              -e SPRING_PROFILES_ACTIVE=${env.PROFILE_ACTIVE} \
+                              -e SPRING_DATASOURCE_URL="${DB_URL}" \
+                              -e SPRING_DATASOURCE_USERNAME="${DB_USER}" \
+                              -e SPRING_DATASOURCE_PASSWORD="${DB_PASS}" \
+                              ${env.IMAGE_NAME}:${env.TAG}
                           '
                         """
                     }
