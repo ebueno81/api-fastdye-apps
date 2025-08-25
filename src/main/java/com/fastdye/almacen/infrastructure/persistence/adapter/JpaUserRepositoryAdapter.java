@@ -19,7 +19,7 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public List<User> findByAll() {
-        return userRepository.findAll()
+        return userRepository.findAllByAnulaReg(0)
                 .stream()
                 .map(UserMapper::toModel)
                 .collect(Collectors.toList());
