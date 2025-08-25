@@ -45,9 +45,9 @@ pipeline {
                 sshagent(['vm-ssh']) {
                     sh '''
                       ssh -o StrictHostKeyChecking=no root@45.149.207.118 "
-                        docker pull ebueno81/miapp:latest &&
-                        docker rm -f miapp || true &&
-                        docker run -d --name miapp --restart unless-stopped -p 8081:8080 ebueno81/miapp:latest
+                        docker pull ebueno81/apiapps:latest &&
+                        docker rm -f ctnapiapps || true &&
+                        docker run -d --name ctnapiapps --restart unless-stopped -p 5015:8080 ebueno81/apiapps:latest
                       "
                     '''
                 }
