@@ -18,23 +18,23 @@ pipeline {
         stage('Configurar entorno') {
             steps {
                 script {
-                    // Detecta la rama desde Jenkins
-                    echo "Branch detectado: ${env.GIT_BRANCH}"
+                    def branch = env.BRANCH_NAME ?: env.GIT_BRANCH
+                    echo "Branch detectado: ${branch}"
 
-                    if (env.GIT_BRANCH == "origin/main") {
+                    if (branch == "main" || branch == "origin/main") {
                         env.DEPLOY_ENV = "prod"
                         env.DB_URL_CRED = "DB_URL_PROD"
                         env.DB_USER_CRED = "DB_USER_PROD"
                         env.DB_PASS_CRED = "DB_PASS_PROD"
                         env.PROFILE_ACTIVE = "pdn"
-                    } else if (env.GIT_BRANCH == "origin/qa") {
+                    } else if (branch == "qa" || branch == "origin/qa") {
                         env.DEPLOY_ENV = "test"
                         env.DB_URL_CRED = "DB_URL_QA"
                         env.DB_USER_CRED = "DB_USER_QA"
                         env.DB_PASS_CRED = "DB_PASS_QA"
                         env.PROFILE_ACTIVE = "qa"
                     } else {
-                        error("La rama ${env.GIT_BRANCH} no tiene despliegue configurado")
+                        error("La rama ${branch} no tiene despliegue configurado")
                     }
 
                     echo "Entorno de despliegue: ${env.DEPLOY_ENV}"
