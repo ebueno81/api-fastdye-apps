@@ -4,13 +4,13 @@ pipeline {
     environment {
         IMAGE_NAME = "ebueno81/apiapps"
         TAG = "latest"
-        CONTAINER_NAME = "ctnapiapps"
         SERVER = "45.149.207.118"
     }
 
     stages {
         stage('Checkout') {
             steps {
+                // Esto ya no usa '*/main', sino que Jenkins detecta la rama en ejecución
                 checkout scm
             }
         }
@@ -23,21 +23,27 @@ pipeline {
 
                     if (branch == "main" || branch == "origin/main") {
                         env.DEPLOY_ENV = "prod"
+                        env.CONTAINER_NAME = "ctnapiapps"
+                        env.APP_PORT = "5015"      // Puerto externo Prod
+                        env.PROFILE_ACTIVE = "pdn"
                         env.DB_URL_CRED = "DB_URL_PROD"
                         env.DB_USER_CRED = "DB_USER_PROD"
                         env.DB_PASS_CRED = "DB_PASS_PROD"
-                        env.PROFILE_ACTIVE = "pdn"
+
                     } else if (branch == "qa" || branch == "origin/qa") {
                         env.DEPLOY_ENV = "test"
+                        env.CONTAINER_NAME = "ctnapiapps-qa"
+                        env.APP_PORT = "5016"      // Puerto externo QA
+                        env.PROFILE_ACTIVE = "qa"
                         env.DB_URL_CRED = "DB_URL_QA"
                         env.DB_USER_CRED = "DB_USER_QA"
                         env.DB_PASS_CRED = "DB_PASS_QA"
-                        env.PROFILE_ACTIVE = "qa"
+
                     } else {
                         error("La rama ${branch} no tiene despliegue configurado")
                     }
 
-                    echo "Entorno de despliegue: ${env.DEPLOY_ENV}"
+                    echo "Se desplegará en: ${env.DEPLOY_ENV}"
                 }
             }
         }
@@ -68,18 +74,18 @@ pipeline {
         stage('Deploy to Server') {
             steps {
                 sshagent(['vm-ssh']) {
-                    sh '''
-                      ssh -o StrictHostKeyChecking=no root@45.149.207.118 "
-                        docker pull ebueno81/apiapps:latest &&
-                        docker rm -f ctnapiapps || true &&
-                        docker run -d --name ctnapiapps --restart unless-stopped -p 5015:8080 \
+                    sh """
+                      ssh -o StrictHostKeyChecking=no root@${SERVER} '
+                        docker pull ${IMAGE_NAME}:${TAG} &&
+                        docker rm -f ${CONTAINER_NAME} || true &&
+                        docker run -d --name ${CONTAINER_NAME} --restart unless-stopped -p ${APP_PORT}:8080 \
                           -e SPRING_PROFILES_ACTIVE=${PROFILE_ACTIVE} \
                           -e SPRING_DATASOURCE_URL=${DB_URL} \
                           -e SPRING_DATASOURCE_USERNAME=${DB_USER} \
                           -e SPRING_DATASOURCE_PASSWORD=${DB_PASS} \
-                          ebueno81/apiapps:latest
-                      "
-                    '''
+                          ${IMAGE_NAME}:${TAG}
+                      '
+                    """
                 }
             }
         }
