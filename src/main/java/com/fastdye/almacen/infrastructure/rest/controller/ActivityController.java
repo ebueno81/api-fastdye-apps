@@ -42,6 +42,14 @@ public class ActivityController {
         Activity activity = ActivityRequestMapper.toModel(request);
         Activity saved = activityUseCase.registrar(activity);
         ActivityResponseDto body = ActivityRestMapper.toResponse(saved);
+
+        // 🔔 Notificar a SSE: actividad creada
+        sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(
+                saved.getId(),  // activityId
+                0,              // idIngresoCreado (no aplica aún)
+                "CREATED"       // status
+        ));
+
         return ResponseEntity
                 .created(URI.create("/api/activity/" + saved.getId()))
                 .body(body);
