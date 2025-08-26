@@ -4,7 +4,6 @@ import com.fastdye.almacen.domain.model.Activity;
 import com.fastdye.almacen.domain.model.ActivityDetail;
 import com.fastdye.almacen.domain.ports.in.ActivityDetailUseCase;
 import com.fastdye.almacen.domain.ports.in.ActivityUseCase;
-import com.fastdye.almacen.infrastructure.realtime.ActivityEventBus;
 import com.fastdye.almacen.infrastructure.rest.dto.*;
 import com.fastdye.almacen.infrastructure.rest.mapper.ActivityDetailRestMapper;
 import com.fastdye.almacen.infrastructure.rest.mapper.ActivityRequestMapper;
@@ -15,41 +14,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/activity")
 public class ActivityController {
-
     @Autowired
     ActivityUseCase activityUseCase;
     @Autowired
     ActivityDetailUseCase activityDetailUseCase;
-    @Autowired
-    Sinks.Many<ActivityEventBus.ProcessActivityEvent> sink;
 
     @PostMapping
     public ResponseEntity<ActivityResponseDto> save(@RequestBody ActivityRequest request){
         Activity activity = ActivityRequestMapper.toModel(request);
         Activity saved = activityUseCase.registrar(activity);
         ActivityResponseDto body = ActivityRestMapper.toResponse(saved);
-
-        // 🔔 Notificar a SSE: actividad creada
-        sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(
-                saved.getId(),  // activityId
-                0,              // idIngresoCreado (no aplica aún)
-                "CREATED"       // status
-        ));
-
         return ResponseEntity
                 .created(URI.create("/api/activity/" + saved.getId()))
                 .body(body);
@@ -128,55 +111,15 @@ public class ActivityController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/headers")
-    public PageResponse<ActivityHeaderDto> listarHeaders(
+    @GetMapping("/activities/headers")
+    public Page<ActivityHeaderDto> listarHeaders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String nombreCliente
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").descending());
-        Page<ActivityHeaderDto> result = activityUseCase.listarSoloCabecera(nombreCliente, pageable);
-        return PageResponse.from(result);
+        Pageable pageable = PageRequest.of(page, size); // 👉 sin ordenamiento
+        return activityUseCase.listarSoloCabecera(nombreCliente, pageable);
     }
 
 
-    @PostMapping("/{id}/process")
-    public ResponseEntity<ProcessActivityResponse> process(
-            @PathVariable int id,
-            @RequestParam(name="user", required=false) String user) {
-
-        String usuario = (user != null && !user.isBlank()) ? user : "system";
-        try {
-            int nuevoId = activityUseCase.procesarActividad(id, usuario);
-
-            // 🔔 Notificar a TODOS los suscriptores SSE
-            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(
-                    id, nuevoId, "PROCESSED"
-            ));
-
-            return ResponseEntity.ok(new ProcessActivityResponse(id, nuevoId, "PROCESSED"));
-        } catch (Exception ex) {
-            sink.tryEmitNext(new ActivityEventBus.ProcessActivityEvent(
-                    id, 0, "ERROR"
-            ));
-            return ResponseEntity.badRequest()
-                    .body(new ProcessActivityResponse(id, 0, "ERROR: " + ex.getMessage()));
-        }
-    }
-
-
-    // Stream global de eventos
-    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ActivityEventBus.ProcessActivityEvent> stream() {
-        // Opcional: heartbeat para mantener viva la conexión
-        return sink.asFlux()
-                .mergeWith(Flux.interval(Duration.ofSeconds(15))
-                        .map(t -> new ActivityEventBus.ProcessActivityEvent(-1, -1, "HEARTBEAT")));
-    }
-
-    // (Opcional) Stream por actividad concreta
-    @GetMapping(path = "/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ActivityEventBus.ProcessActivityEvent> streamById(@PathVariable int id) {
-        return sink.asFlux().filter(ev -> ev.activityId() == id);
-    }
 }
