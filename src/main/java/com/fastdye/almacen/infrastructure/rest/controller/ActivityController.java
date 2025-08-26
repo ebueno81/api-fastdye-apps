@@ -129,13 +129,13 @@ public class ActivityController {
     }
 
     @GetMapping("/headers")
-    public Page<ActivityHeaderDto> listarHeaders(
+    public ResponseEntity<Page<ActivityHeaderDto>> listarHeaders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String nombreCliente
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").descending());
-        return activityUseCase.listarSoloCabecera(nombreCliente, pageable);
+        return ResponseEntity.ok(activityUseCase.listarSoloCabecera(nombreCliente, pageable));
     }
 
     @PostMapping("/{id}/process")
