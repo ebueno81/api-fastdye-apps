@@ -4,7 +4,6 @@ import com.fastdye.almacen.domain.model.Article;
 import com.fastdye.almacen.domain.ports.in.ArticleUseCase;
 import com.fastdye.almacen.infrastructure.rest.dto.ArticleResponseDto;
 import com.fastdye.almacen.infrastructure.rest.mapper.ArticleRestMapper;
-import com.fastdye.almacen.infrastructure.rest.mapper.ClientRestMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
