@@ -72,19 +72,33 @@ pipeline {
                         string(credentialsId: "${env.DB_USER_CRED}", variable: 'DB_USER'),
                         string(credentialsId: "${env.DB_PASS_CRED}", variable: 'DB_PASS')
                     ]) {
-                        sh """
-                          ssh -o StrictHostKeyChecking=no root@${env.SERVER} '
-                            docker pull ${env.IMAGE_NAME}:${env.TAG} &&
-                            docker rm -f ${env.CONTAINER_NAME} || true &&
-                            docker run -d --name ${env.CONTAINER_NAME} --restart unless-stopped -p 5015:8080 \
-                              -e SPRING_PROFILES_ACTIVE=${env.PROFILE_ACTIVE} \
-                              -e SPRING_DATASOURCE_URL="${DB_URL}" \
-                              -e SPRING_DATASOURCE_USERNAME="${DB_USER}" \
-                              -e SPRING_DATASOURCE_PASSWORD="${DB_PASS}" \
-                              ${env.IMAGE_NAME}:${env.TAG}
-                          '
-                        """
+                        script {
+                            def runCmd = """
+                                docker pull ${env.IMAGE_NAME}:${env.TAG} &&
+                                docker rm -f ${env.CONTAINER_NAME} || true &&
+                                docker run -d --name ${env.CONTAINER_NAME} --restart unless-stopped -p 5015:8080 \
+                                  -e SPRING_PROFILES_ACTIVE=${env.PROFILE_ACTIVE} \
+                                  -e SPRING_DATASOURCE_URL="${DB_URL}" \
+                                  -e SPRING_DATASOURCE_USERNAME="${DB_USER}" \
+                                  -e SPRING_DATASOURCE_PASSWORD="${DB_PASS}" \
+                                  ${env.IMAGE_NAME}:${env.TAG}
+                            """.trim()
+
+                            sh "ssh -o StrictHostKeyChecking=no root@${env.SERVER} '${runCmd}'"
+                        }
                     }
+                }
+            }
+        }
+
+        stage('Clean up Docker') {
+            steps {
+                sshagent(['vm-ssh']) {
+                    sh """
+                      ssh -o StrictHostKeyChecking=no root@${env.SERVER} '
+                        docker image prune -f
+                      '
+                    """
                 }
             }
         }
