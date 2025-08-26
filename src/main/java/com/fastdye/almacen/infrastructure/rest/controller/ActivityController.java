@@ -67,7 +67,7 @@ public class ActivityController {
         return ResponseEntity.ok(ActivityRestMapper.toResponse(updated));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     @Operation(summary = "Buscar actividad por ID")
     public ResponseEntity<ActivityResponseDto> findById(@PathVariable int id) {
         return activityUseCase.buscarPorId(id)
@@ -111,7 +111,7 @@ public class ActivityController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/activities/headers")
+    @GetMapping("/headers")
     public Page<ActivityHeaderDto> listarHeaders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
