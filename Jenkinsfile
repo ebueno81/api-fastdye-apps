@@ -28,12 +28,12 @@ pipeline {
                         env.DB_USER_CRED = "DB_USER_PROD"
                         env.DB_PASS_CRED = "DB_PASS_PROD"
                     } else if (branch == "qa" || branch == "origin/qa") {
-                        env.IMAGE_NAME = "ebueno81/apiapps-qa"
-                        env.CONTAINER_NAME = "ctnapiapps-qa"
-                        env.PROFILE_ACTIVE = "qa"
-                        env.DB_URL_CRED = "DB_URL_QA"
-                        env.DB_USER_CRED = "DB_USER_QA"
-                        env.DB_PASS_CRED = "DB_PASS_QA"
+                        env.IMAGE_NAME = "ebueno81/apiapps-test"
+                        env.CONTAINER_NAME = "ctnapiapps-test"
+                        env.PROFILE_ACTIVE = "test"
+                        env.DB_URL_CRED = "DB_URL_TEST"
+                        env.DB_USER_CRED = "DB_USER_TEST"
+                        env.DB_PASS_CRED = "DB_PASS_TEST"
                     } else {
                         error("La rama ${branch} no tiene despliegue configurado")
                     }
